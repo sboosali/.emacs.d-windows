@@ -1,0 +1,24 @@
+# my
+ignore/
+temporary/ 
+notes.txt 
+TODO
+
+# Emacs
+*.elc 
+\#*
+*~
+.#*
+\#*\#
+*.log
+TAGS
+.projectile
+.emacs.desktop
+.emacs.desktop.lock
+auto-save-list/ 
+elpa/ 
+melpa/
+
+# OS X
+.DS_Store
+
