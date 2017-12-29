@@ -45,7 +45,7 @@
 (add-hook 'fundamental-mode 'real-auto-save-mode)
 (add-hook 'prog-mode-hook 'real-auto-save-mode)
 (add-hook 'text-mode-hook 'real-auto-save-mode)
-(setq real-auto-save-interval 1) ;; in seconds
+(setq real-auto-save-interval 10) ;; in seconds
 
 (setq auto-save-visited-file-name t) 
 
@@ -58,6 +58,12 @@
 
 (find-file user-init-file) ;; (concat config "init.el"))
 (find-file (concat config "notes.txt"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; functions 
+
+(defun maximize-frame () (interactive) 
+  (set-frame-parameter nil 'fullscreen 'maximized))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -75,6 +81,11 @@
 (global-set-key "\M-r" 'query-replace-regexp)
 (global-set-key "\M-`" 'previous-buffer) ;; mnemonic: it's near ALT-TAB 
 
+;; NOTE Windows-specific 
+(global-set-key (kbd "<apps>") 'execute-extended-command)
+
+(global-set-key (kbd "C-M-m") 'maximize-frame) 
+
 ; (global-set-key (kbd "<f9>") 'pop-tag-mark)
 					;(global-set-key (kbd "<f10>") 'intero-goto-definition)
 
@@ -86,7 +97,7 @@
 (setq Buffer-menu-name-width 30)
 ;; (setq Buffer-menu-size-width 6)
 (add-hook 'Buffer-menu-mode-hook (lambda() 
-  (setq Buffer-menu-files-only t) 
+;;  (setq Buffer-menu-files-only t) 
   (revert-buffer)))
   ;; see buff-menu.el 
 
@@ -205,6 +216,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO 
 (defun my-haskell-windows ()
   "a configuration of Windows. the source (.hs) on the left, and the errors (ghcid) on the right."
   (interactive)
@@ -268,15 +280,6 @@
 (global-set-key "\M-w" 'eval-region-or-last-sexp) 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; HYPERLINKS 
-
-(require 'my-links) 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(custom-set-variables 
- '(eval-expression-print-length nil) 
- '(eval-expression-print-level nil))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -284,12 +287,17 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
+ '(eval-expression-print-length nil)
+ '(eval-expression-print-level nil)
  '(package-selected-packages
    (quote
-    (use-package flycheck-liquidhs ac-haskell-process dante flycheck-haskell intero vlf))))
+    (helm command-log-mode use-package flycheck-liquidhs ac-haskell-process dante flycheck-haskell intero vlf))))
+
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'erase-buffer 'disabled nil)

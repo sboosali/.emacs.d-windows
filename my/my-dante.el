@@ -186,7 +186,7 @@
 ;; MARK RING 
 
 (setq global-mark-ring-max 1000)
-(global-set-key (kbd "<kp-left>")	'pop-global-mark)
+;; TODO (global-set-key (kbd "<kp-left>")	'pop-global-mark)
 ;; (global-set-key (kbd "<kp-right>")	')
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
