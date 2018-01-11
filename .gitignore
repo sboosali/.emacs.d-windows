@@ -4,6 +4,9 @@ temporary/
 notes.txt 
 TODO
 
+# nix
+result/
+
 # Emacs
 *.elc 
 \#*

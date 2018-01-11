@@ -1,17 +1,32 @@
 ;; M-: user-init-file
 ;; c:/Users/Spiros/AppData/Roaming/.emacs.d/init.el
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar config "c:/Users/Spiros/AppData/Roaming/.emacs.d/")
+;; '''The way I use to maintain several .emacs.d directories in parallel is the following.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; emacs is started like this:
+
+;; alias emacs-windows='./result/bin/emacs -q --load "~/.emacs.d-windows/init.el"'
+;; alias emacs-here='./result/bin/emacs -q --load "./init.el"' # relative filepath
+
+;; Each init.el file begins like this, to correctly set up the user-init-file and user-emacs-directory variables:
+
+(setq user-init-file (or load-file-name (buffer-file-name)))
+(setq user-emacs-directory (file-name-directory user-init-file))
+
+;; The patch which allows you to specify .emacs.d location via `EMACS_USER_DIRECTORY' environment variable is available but not merged.'''
+
+(defvar config user-emacs-directory)
+;; (defvar config "c:/Users/Spiros/AppData/Roaming/.emacs.d/")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (cua-mode t)
 (transient-mark-mode 1) ;; No region when it is not highlighted
 (setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'package) 
 
@@ -28,7 +43,7 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (eval-when-compile
 ;;   (require 'use-package))
@@ -37,7 +52,7 @@
 (add-to-list 'load-path (concat config "packages/"))
 (add-to-list 'load-path (concat config "my/"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;SAVING
 ;;must come first 
 
@@ -49,23 +64,23 @@
 
 (setq auto-save-visited-file-name t) 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (desktop-save-mode 1)
 (setq desktop-auto-save-timeout 5) ;; in seconds 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (find-file user-init-file) ;; (concat config "init.el"))
 (find-file (concat config "notes.txt"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; functions 
 
 (defun maximize-frame () (interactive) 
   (set-frame-parameter nil 'fullscreen 'maximized))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 
 (global-set-key (kbd "<tab>") 'dabbrev-expand)
@@ -91,8 +106,10 @@
 
 ;; (global-set-key (kbd "<kp-home>") 'other-window)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; BUFFERS 
+
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
 
 (setq Buffer-menu-name-width 30)
 ;; (setq Buffer-menu-size-width 6)
@@ -101,11 +118,13 @@
   (revert-buffer)))
   ;; see buff-menu.el 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (ffap-bindings)
 
-(setq indent-tabs-mode nil)
+;; Prevent Extraneous Tabs
+;; Note that this line uses setq-default rather than the setq command that we have seen before. The setq-default command sets values only in buffers that do not have their own local values for the variable.
+(setq-default indent-tabs-mode nil)
 
 ;; disable automatic indentation on newlines 
 (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
@@ -121,7 +140,7 @@
 ;;  scroll-conservatively 10000
  scroll-preserve-screen-position 1)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (add-hook 'text-mode-hook #'turn-on-visual-line-mode)
 
@@ -153,7 +172,7 @@
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode t)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FRAMES AND WINDOWS 
 
 
@@ -210,11 +229,11 @@
 (when (fboundp 'winner-mode)
       (winner-mode 1))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'my-dante)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; TODO 
 (defun my-haskell-windows ()
@@ -229,7 +248,20 @@
   ;; The last line insert this “current” configuration in a register, after changing the window buffers or the window configuration itself, you can return to this window configuration with { C-x r j w }.
   (window-configuration-to-register ?w))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; VOICE
+
+(defun refresh-mode ()
+  (interactive) 
+  (toggle-read-only)
+  (setq auto-revert-interval 1)
+  (auto-revert-mode))
+
+(setq shared-folder-transcription-file-regular-expression "transcription\\.txt\\'")
+
+(add-to-list 'auto-mode-alist (cons shared-folder-transcription-file-regular-expression 'refresh-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FUNCTIONS  
 
 ;; see http://ivanmalison.github.io/dotfiles/
@@ -274,24 +306,19 @@
   (if (region-active-p) (call-interactively 'eval-region)
     (call-interactively 'eval-last-sexp)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MORE SHORTCUTS (this is later to be defined after its dependent definitions)
 
 (global-set-key "\M-w" 'eval-region-or-last-sexp) 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(column-number-mode t)
- '(eval-expression-print-length nil)
- '(eval-expression-print-level nil)
- '(package-selected-packages
-   (quote
-    (helm command-log-mode use-package flycheck-liquidhs ac-haskell-process dante flycheck-haskell intero vlf))))
+ '(package-selected-packages (quote (use-package))))
 
 
 (custom-set-faces
