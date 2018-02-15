@@ -60,7 +60,7 @@
 (add-hook 'fundamental-mode 'real-auto-save-mode)
 (add-hook 'prog-mode-hook 'real-auto-save-mode)
 (add-hook 'text-mode-hook 'real-auto-save-mode)
-(setq real-auto-save-interval 10) ;; in seconds
+(setq real-auto-save-interval 1) ;; in seconds
 
 (setq auto-save-visited-file-name t) 
 
@@ -307,9 +307,48 @@
     (call-interactively 'eval-last-sexp)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; (require 'color-theme)
+
+;; M-: (face-attribute 'default :background)
+;; "#2e3436"
+
+(defun darkroom-mode ()
+	"Make things simple-looking by removing decoration 
+	 and choosing a simple theme."
+        (interactive)
+;        (switch-full-screen 1)     ;; requires above function 
+;;	(color-theme-retro-green)  ;; requires color-theme
+;        (setq left-margin 10)
+;        (menu-bar-mode -1)
+;        (tool-bar-mode -1)
+;        (scroll-bar-mode -1)
+
+;        (set-face-foreground 'mode-line "gray15")
+;        (set-face-background 'mode-line "black")
+        (set-face-background 'default   "#2e3436")
+        (auto-fill-mode 1)
+)
+
+(defun darkroom-mode-reset ()
+   (interactive)
+;   (switch-full-screen -1)
+;   (color-theme-subtle-hacker) ;; Choose your favorite theme
+;   (menu-bar-mode 1)
+;   (tool-bar-mode 1)
+;   (scroll-bar-mode 1)
+;   (set-left-margin 0)
+)	  
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MORE SHORTCUTS (this is later to be defined after its dependent definitions)
 
 (global-set-key "\M-w" 'eval-region-or-last-sexp) 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; EFFECTS
+
+(darkroom-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -318,7 +357,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (use-package))))
+ '(package-selected-packages (quote (use-package)))
+ '(safe-local-variable-values
+   (quote
+    ((dante-repl-command-line "nix-shell" "/home/sboo/haskell/cards/default.nix" "-A" "shells.ghc" "--run" "cabal new-repl cards-frontend")
+     (dante-repl-command-line "nix-shell" "/home/sboo/haskell/magic-card-search/shell.nix" "--run" "cabal repl magic-card-search")))))
 
 
 (custom-set-faces

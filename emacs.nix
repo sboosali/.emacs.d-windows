@@ -35,6 +35,8 @@ in
   ]) ++ (with epkgs.melpaPackages; [
 
  dante
+ haskell-mode # haskell-c2hs-mode
+ color-theme
 # dhall-mode
  magit          # ; Integrate git <C-x g>
  helm
@@ -53,11 +55,12 @@ in
  evil
  window-purpose
  paredit
- color-theme
 use-package
 flycheck
 #xref
- 
+
+# color-theme
+
   ]) ++ (with epkgs.melpaStablePackages; [
   
   ]) ++ (with epkgs.orgPackages; [
