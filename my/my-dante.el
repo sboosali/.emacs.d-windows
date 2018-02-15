@@ -1,6 +1,7 @@
 (provide 'my-dante)
-(require 'my-links) 
- 
+;;(require 'my-links) 
+
+(require 'haskell-mode)
 (require 'dante) 
 
 ;; Company completion				| company-mode		| 
@@ -10,17 +11,46 @@
 ;; Goto definition				| xref-find-definitions	| M-.
 ;; Find uses					| xref-find-references	| M-?
 ;; REPLoid (*)					| dante-eval-block	| C-c ”
+;; Restart                                      | dante-restart         | 
+;; Diagnossis                                   | dante-diagnose        | 
 
-(use-package dante
-  :ensure t
-  :after haskell-mode
-  :commands 'dante-mode
-  :init
-  (add-hook 'haskell-mode-hook 'dante-mode)
-  (add-hook 'haskell-mode-hook 'flycheck-mode))
+;; (use-package dante
+;;   :ensure t
+;;   :after haskell-mode
+;;   :commands 'dante-mode
+;;   :init
+;;   (add-hook 'haskell-mode-hook 'dante-mode)
+;;   (add-hook 'haskell-mode-hook 'flycheck-mode))
+
+;; Customization
+;; `dante-project-root`
+;; `dante-repl-command-line`
+;; `dante-load-flags`
+;;
+;; to make sure that GHCi is properly loaded by dante
+;; run `M-x customize-group dante` to read the documentation
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GHCID 
+
+(setq ghcid-filename   10)
+(setq ghcid-line       20)
+(setq ghcid-column     30)
+
+   ;;NOTE -ferror-spans only
+   ;; which cabal new-repl lacks
+   ;;       10 (cons 20 21) (cons 30 31)
+;; (setq ghcid-line-range       (20 . 21))
+;; (setq ghcid-column-range     (30 . 31))
+
+;;
+(setq compilation-warning-type    0)
+(setq compilation-info-type       1)
+(setq compilation-error-type      2)
+
+(setq ghcid-type       compilation-error-type)
+(setq ghcid-hyperlink  nil) ;; `nil` means: match whole line
+;(setq ghcid-highlight  )
 
 ;; see https://www.emacswiki.org/emacs/AutoModeAlist
 ;; The auto-mode-alist variable is an AssociationList that associates MajorModes with a pattern to match a buffer filename when it is first opened
@@ -62,6 +92,12 @@
 ;; What matched the HYPERLINK’th subexpression has ‘mouse-face’ and
 ;; ‘compilation-message-face’ applied.  If this is nil, the text
 ;; matched by the whole REGEXP becomes the hyperlink.
+;; TYPE is 2 or nil for a real error or 1 for warning or 0 for info.
+;; TYPE can also be of the form (WARNING . INFO).  In that case this
+;; will be equivalent to 1 if the WARNING’th subexpression matched
+;; or else equivalent to 0 if the INFO’th subexpression matched.
+;; See ‘compilation-error-face’, ‘compilation-warning-face’,
+;; ‘compilation-info-face’ and ‘compilation-skip-threshold’.
 
 ;; lookup the value of a key in an association list 
 ;; (cdr (assoc 'KEY ALIST))
@@ -77,43 +113,92 @@
 ;;        3 4 nil nil 2
 ;;        (1 compilation-error-face)))
 
-;; for this regex, `ghcid` needs `--ghci-options -ferror-spans`
+;;NOTE for this regex, `ghcid` needs `--ghci-options -ferror-spans`
 ;;(defvar
 (setq ghcid-error-regular-expression 
   (rx 
-   line-start 
-   (group-n 10 
+
+   line-start
+;;TODO?   line-start 
+
+   (group-n 10 ;;TODO ghcid-filename
             (one-or-more (not (any ":\n")))
-	    ".hs")
+	    ".hs") ;;TODO other extensions, like: .lhs, .hsc, 
    ":"
-   (group-n 20
+   (group-n 20  ;;TODO ghcid-line
 	    (one-or-more digit))
-   (group-n 21
-	    (zero-or-one "-" (one-or-more digit))) 
+
+   ;;NOTE -ferror-spans only
+   ;; which cabal new-repl lacks
+   ;; (group-n 21
+   ;;          (zero-or-one "-" (one-or-more digit))) 
+
    ":"
-   (group-n 30
+   (group-n 30  ;;TODO ghcid-column
 	    (one-or-more digit))
-   (group-n 31
-	    (zero-or-one "-" (one-or-more digit))) 
+
+   ;;NOTE -ferror-spans only
+   ;; which cabal new-repl lacks
+   ;; (group-n 31
+   ;;          (zero-or-one "-" (one-or-more digit))) 
+
+   ": " 
+   (or (group-n 42 "error")    ;;TODO 
+       (group-n 41 "warning"))  ;;TODO 
+   ":"
    (zero-or-more (not (any "\n")))
-   "error" 
-   (zero-or-more (not (any "\n")))
+
    line-end
-   )) 
 
-   ;; (group-n 5 
-   ;; 	    ;; (or "C:\\" "/")
-   ;;          "C:\\" 
-   ;; 	    ;; (one-or-more (or alphanumeric (or blank "-" "_" ) (or "\\" "/"))) 
-   ;;          (one-or-more (or alphanumeric blank "-" "_" "\\" "/"))
-   ;; 	    ".hs")
+   ;; (zero-or-more (not (any "\n")))
+   ;; "error" 
+   ;; (zero-or-more (not (any "\n")))
 
-(add-to-list 'compilation-error-regexp-alist       'ghcid-error)
+;;TODO?    line-end
+)) 
+
+;;
+(setq ghcid-warning-regular-expression
+  (rx 
+   line-start
+   (group-n 10 ;;TODO ghcid-filename
+            (one-or-more (not (any ":\n")))
+	    (or ".hs" ".lhs" ".hsc"))
+   ":"
+   (group-n 20  ;;TODO ghcid-line
+	    (one-or-more digit))
+   ":"
+   (group-n 30  ;;TODO ghcid-column
+	    (one-or-more digit))
+   ": warning:"
+   (zero-or-more (not (any "\n")))
+   line-end)) 
+
+(add-to-list 'compilation-error-regexp-alist       
+ 'ghcid-error)
+
+(add-to-list 'compilation-error-regexp-alist       
+ 'ghcid-warning)
+
 (add-to-list 'compilation-error-regexp-alist-alist
  (list 'ghcid-error
        ghcid-error-regular-expression
-       10 (cons 20 21) (cons 30 31) 
-       nil 5)) ;; (list 1 'compilation-error-face)))
+       ghcid-filename
+       ghcid-line
+       ghcid-column
+       compilation-error-type
+       ghcid-hyperlink
+ )
+) ;; (list 1 'compilation-error-face)))
+
+(add-to-list 'compilation-error-regexp-alist-alist
+ (list 'ghcid-warning
+       ghcid-warning-regular-expression
+       ghcid-filename
+       ghcid-line
+       ghcid-column
+       compilation-warning-type
+       ghcid-hyperlink))
 
 ;; defvar
 ;; (setq ghcid-file-regular-expression 
@@ -125,14 +210,21 @@
 ;; ;;   string-end
 ;;   )) 
 
-(setq ghcid-file-regular-expression "ghcid\\.txt\\'")
-(add-to-list 'auto-mode-alist (cons ghcid-file-regular-expression 'ghcid-mode))
+(setq ghcid-file-regular-expression ".*ghcid\\.txt\\'")
+
+(add-to-list 'auto-mode-alist
+ (cons ghcid-file-regular-expression 'ghcid-mode))
+
 (defun ghcid-mode ()
   (interactive) 
   (toggle-read-only)
   (setq auto-revert-interval 1)
   (auto-revert-mode)
   (compilation-minor-mode))
+
+;; "^\\(?10:[^:]+\\.hs\\):\\(?20:[[:digit:]]+\\):\\(?30:[[:digit:]]+\\): error:$"
+;; ^\(?10:[^:]+\.hs\):\(?20:[[:digit:]]+\):\(?30:[[:digit:]]+\): error:$
+;; ^[^:]+\.hs:[[:digit:]]+:[[:digit:]]+: error:$
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

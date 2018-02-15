@@ -1,0 +1,2 @@
+sources/Cards/Frontend/GUI.hs:52:1: warning: [-Wunused-imports]
+    The import of ‘Prelude.Spiros’ is redundant
