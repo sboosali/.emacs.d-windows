@@ -226,13 +226,30 @@
 ;; ^\(?10:[^:]+\.hs\):\(?20:[[:digit:]]+\):\(?30:[[:digit:]]+\): error:$
 ;; ^[^:]+\.hs:[[:digit:]]+:[[:digit:]]+: error:$
 
+(defun find-ghcid-txt ()
+ "open/activate the nearest `ghcid.txt`, if it exists. works within multi-package projects too. TODO .hs extensions only?"
+ (interactive)
+ (find-file-in-ancestor-directory "ghcid.txt")
+ (beginning-of-buffer)
+ (revert-buffer t t)
+ (setq unread-command-events (listify-key-sequence "\C-m"))
+ ;; (setq unread-command-events (kbd "RET"))
+)
+ ;; (revert-buffer &optional IGNORE-AUTO NOCONFIRM PRESERVE-MODES)
+ ;; http://ergoemacs.org/emacs/emacs_key_notation_return_vs_RET.html
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; TODO workflow-windows sends numpad arrow keys instead of the normal ones 
 ;; (global-set-key (kbd "<kp-KEY>") 'COMMAND)
 (global-set-key (kbd "<kp-home>")	'dante-type-at)		; C-c .
 (global-set-key (kbd "<kp-end>")	'dante-info)		; C-c ,
-(global-set-key (kbd "<kp-space>")     	'xref-find-definitions)	; M-.
+
+(global-set-key (kbd "<kp-delete>")     	'find-ghcid-txt)
+
+;;(global-set-key (kbd "<kp-space>")     	'xref-find-definitions)	; M-.
+
 ;; (global-set-key (kbd "<kp-decimal>")     	'xref-find-definitions)	; M-.
 ;; (global-set-key (kbd "<kp-up>")	'xref-find-definitions)	; M-.
 ;; (global-set-key (kbd "<kp-down>")	'xref-find-references)	; M-?

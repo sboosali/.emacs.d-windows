@@ -231,9 +231,30 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; https://emacs.stackexchange.com/questions/7475/recursively-go-up-to-find-makefile-and-compile
+
+(defun find-file-in-ancestor-directory (FILE)
+  "Traveling backwards in the filesystem from the current file's directory, find FILE and open (or activate) it in another window. (TODO returning the buffer."
+  (interactive)
+  (let* ((directory (locate-dominating-file default-directory FILE))
+         (filepath  (concat directory FILE)))
+    (progn
+      (if directory
+       (find-file-other-window filepath)
+       (message "[find-file-in-ancestor-directory] not found: `%s`" FILE)))))
+
+;; 
+;;
+;; https://emacs.stackexchange.com/questions/2461/how-can-i-simulate-an-arbitary-key-event-from-elisp
+(defun press-C-g ()
+  (interactive)
+  (setq unread-command-events (listify-key-sequence "\C-g")))
+
 (require 'my-dante)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;(setq smerge-command-prefix "\C-cv")
 
 ;; TODO 
 (defun my-haskell-windows ()
