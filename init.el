@@ -83,14 +83,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 
-(global-set-key (kbd "<tab>") 'dabbrev-expand)
+(global-set-key (kbd "<tab>") 'dabbrev-expand) ;;TODO override org-mode's keybinding ;; disable visual-line-mode
+
 ;; (global-set-key (kbd "<f1>")  'execute-extended-command) ;; stupid Dragon NaturallySpeaking shortcut, it crashes when I edit the shortcuts, I should try to find any entries in the registry
 (global-set-key (kbd "<f2>")  'eval-expression)
 (global-set-key (kbd "<f11>") 'pp-eval-expression) ;; eval-expression
-(global-set-key (kbd "<f12>") 'execute-extended-command)
+
+(global-set-key (kbd "<f12>") 'helm-M-x)
+;;(global-set-key (kbd "<f12>") 'execute-extended-command)
+
 ;; (global-set-key (kbd "<kp-insert>") 'execute-extended-command)
 
-(global-set-key (kbd "<kp-insert>") 'electric-buffer-list) 
+;;(global-set-key (kbd "<kp-insert>") 'electric-buffer-list) 
+(global-set-key (kbd "<kp-insert>") 'helm-buffer-list) 
 
 (global-set-key (kbd "<pause>") 'set-mark-command)
 (global-set-key "\M-r" 'query-replace-regexp)
